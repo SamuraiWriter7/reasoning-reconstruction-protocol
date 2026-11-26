@@ -1,0 +1,120 @@
+{
+  "protocol": "RZIP",
+  "version": "0.1.0",
+  "asset_id": "RZIP-001",
+  "metadata": {
+    "title": "Valid linear equation reconstruction",
+    "description": "Reconstruct and verify a solution to a linear equation using a reusable reasoning skeleton.",
+    "creator": "RZIP Example Author",
+    "created_at": "2026-11-26T00:00:00Z",
+    "source": "Original illustrative reasoning rule based on elementary algebra",
+    "reuse_permission": "example-only"
+  },
+  "facts": [
+    {
+      "id": "F001",
+      "claim": "For nonzero rational a, a * x = b implies x = b / a.",
+      "evidence": "Elementary algebra",
+      "verification_status": "verified"
+    }
+  ],
+  "rules": [
+    {
+      "id": "P001",
+      "description": "Calculate x by dividing b by a.",
+      "operation": "divide",
+      "inputs": [
+        "b",
+        "a"
+      ],
+      "output": "x"
+    }
+  ],
+  "skeleton": {
+    "id": "S001",
+    "description": "Solve a linear equation using a reusable reasoning rule.",
+    "steps": [
+      "P001"
+    ]
+  },
+  "context": {
+    "inputs": {
+      "a": 2,
+      "b": 10
+    },
+    "required_inputs": [
+      "a",
+      "b"
+    ],
+    "required_conditions": [
+      {
+        "left": {
+          "ref": "a"
+        },
+        "operator": "ne",
+        "right": {
+          "value": 0
+        }
+      }
+    ],
+    "prohibited_conditions": [
+      {
+        "left": {
+          "ref": "a"
+        },
+        "operator": "eq",
+        "right": {
+          "value": 0
+        }
+      }
+    ]
+  },
+  "verification": {
+    "checks": [
+      {
+        "id": "V001",
+        "operation": "multiply",
+        "inputs": [
+          "a",
+          "x"
+        ],
+        "operator": "eq",
+        "expected": {
+          "ref": "b"
+        }
+      }
+    ]
+  },
+  "claims": [
+    {
+      "id": "C001",
+      "claim": "A nonzero coefficient permits division in this equation.",
+      "type": "F",
+      "verification_status": "verified",
+      "source": "F001"
+    },
+    {
+      "id": "C002",
+      "claim": "The solution can be reconstructed by applying the stored reasoning rule to the current inputs.",
+      "type": "R",
+      "verification_status": "unverified",
+      "source": "P001"
+    },
+    {
+      "id": "C003",
+      "claim": "The same reasoning skeleton may be reusable for other linear equations satisfying the declared conditions.",
+      "type": "H",
+      "verification_status": "unverified",
+      "source": "S001"
+    }
+  ],
+  "expected": {
+    "decision": "APPLY",
+    "reconstruction": "SUCCESS",
+    "verification": "PASS",
+    "accepted": true,
+    "outputs": {
+      "x": 5
+    }
+  }
+}
