@@ -1,0 +1,38 @@
+name: RZIP Validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate RZIP v0.1
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Display Python version
+        run: python --version
+
+      - name: Install validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "jsonschema[format]>=4,<5"
+
+      - name: Check Python syntax
+        run: python -m py_compile scripts/validate.py
+
+      - name: Run RZIP reference validator
+        run: python scripts/validate.py
