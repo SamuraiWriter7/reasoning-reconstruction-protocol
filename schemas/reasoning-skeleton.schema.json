@@ -1,0 +1,632 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RZIP Reasoning Skeleton Schema v0.1",
+  "description": "Declarative reasoning reconstruction and compression protocol.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol",
+    "version",
+    "asset_id",
+    "metadata",
+    "facts",
+    "rules",
+    "skeleton",
+    "context",
+    "verification",
+    "claims"
+  ],
+  "properties": {
+    "protocol": {
+      "const": "RZIP"
+    },
+    "version": {
+      "const": "0.1.0"
+    },
+    "asset_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "facts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/fact"
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    },
+    "skeleton": {
+      "$ref": "#/$defs/skeleton"
+    },
+    "context": {
+      "$ref": "#/$defs/context"
+    },
+    "verification": {
+      "$ref": "#/$defs/verification"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/claim"
+      }
+    },
+    "expected": {
+      "$ref": "#/$defs/expected_result"
+    }
+  },
+  "$defs": {
+    "nonempty_string": {
+      "type": "string",
+      "minLength": 1
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "variable_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "unverified",
+        "failed"
+      ]
+    },
+    "epistemic_type": {
+      "type": "string",
+      "enum": [
+        "F",
+        "R",
+        "H"
+      ]
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "APPLY",
+        "REJECT",
+        "UNKNOWN"
+      ]
+    },
+    "reconstruction_status": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "ERROR",
+        "NOT_RUN"
+      ]
+    },
+    "verification_outcome": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "NOT_RUN"
+      ]
+    },
+    "arithmetic_operation": {
+      "type": "string",
+      "enum": [
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ]
+    },
+    "verification_operation": {
+      "type": "string",
+      "enum": [
+        "identity",
+        "add",
+        "subtract",
+        "multiply",
+        "divide"
+      ]
+    },
+    "comparison_operator": {
+      "type": "string",
+      "enum": [
+        "eq",
+        "ne",
+        "gt",
+        "gte",
+        "lt",
+        "lte"
+      ]
+    },
+    "integer_value": {
+      "type": "integer",
+      "description": "An integer value. The runtime must additionally reject floating-point representations and booleans."
+    },
+    "rational_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "numerator",
+        "denominator"
+      ],
+      "properties": {
+        "numerator": {
+          "$ref": "#/$defs/integer_value"
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 2
+        }
+      },
+      "description": "A non-integral rational number in reduced form. Canonical representation must be checked by the runtime."
+    },
+    "output_value": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/integer_value"
+        },
+        {
+          "$ref": "#/$defs/rational_value"
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "description",
+        "creator",
+        "created_at",
+        "source",
+        "reuse_permission"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "description": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "creator": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "reuse_permission": {
+          "$ref": "#/$defs/nonempty_string"
+        }
+      }
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "claim",
+        "evidence",
+        "verification_status"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "claim": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/verification_status"
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "operation",
+        "inputs",
+        "output"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "description": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "operation": {
+          "$ref": "#/$defs/arithmetic_operation"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/variable_name"
+          }
+        },
+        "output": {
+          "$ref": "#/$defs/variable_name"
+        }
+      }
+    },
+    "skeleton": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "steps"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "description": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        }
+      }
+    },
+    "reference_operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref"
+      ],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/variable_name"
+        }
+      }
+    },
+    "literal_operand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ],
+      "properties": {
+        "value": {
+          "$ref": "#/$defs/integer_value"
+        }
+      }
+    },
+    "operand": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/reference_operand"
+        },
+        {
+          "$ref": "#/$defs/literal_operand"
+        }
+      ]
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left",
+        "operator",
+        "right"
+      ],
+      "properties": {
+        "left": {
+          "$ref": "#/$defs/operand"
+        },
+        "operator": {
+          "$ref": "#/$defs/comparison_operator"
+        },
+        "right": {
+          "$ref": "#/$defs/operand"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inputs",
+        "required_inputs",
+        "required_conditions",
+        "prohibited_conditions"
+      ],
+      "properties": {
+        "inputs": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/variable_name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/integer_value"
+          }
+        },
+        "required_inputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/variable_name"
+          }
+        },
+        "required_conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/condition"
+          }
+        },
+        "prohibited_conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/condition"
+          }
+        }
+      }
+    },
+    "verification_check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "operation",
+        "inputs",
+        "operator",
+        "expected"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "operation": {
+          "$ref": "#/$defs/verification_operation"
+        },
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/variable_name"
+          }
+        },
+        "operator": {
+          "$ref": "#/$defs/comparison_operator"
+        },
+        "expected": {
+          "$ref": "#/$defs/operand"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "identity"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "inputs": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "inputs": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          }
+        }
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checks"
+      ],
+      "properties": {
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/verification_check"
+          }
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "claim",
+        "type",
+        "verification_status",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "claim": {
+          "$ref": "#/$defs/nonempty_string"
+        },
+        "type": {
+          "$ref": "#/$defs/epistemic_type"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/verification_status"
+        },
+        "source": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/variable_name"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/output_value"
+      }
+    },
+    "expected_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "reconstruction",
+        "verification",
+        "accepted",
+        "outputs"
+      ],
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/decision"
+        },
+        "reconstruction": {
+          "$ref": "#/$defs/reconstruction_status"
+        },
+        "verification": {
+          "$ref": "#/$defs/verification_outcome"
+        },
+        "accepted": {
+          "type": "boolean"
+        },
+        "outputs": {
+          "$ref": "#/$defs/outputs"
+        }
+      },
+      "oneOf": [
+        {
+          "title": "Accepted reconstruction",
+          "properties": {
+            "decision": {
+              "const": "APPLY"
+            },
+            "reconstruction": {
+              "const": "SUCCESS"
+            },
+            "verification": {
+              "const": "PASS"
+            },
+            "accepted": {
+              "const": true
+            },
+            "outputs": {
+              "minProperties": 1
+            }
+          }
+        },
+        {
+          "title": "Verification failure",
+          "properties": {
+            "decision": {
+              "const": "APPLY"
+            },
+            "reconstruction": {
+              "const": "SUCCESS"
+            },
+            "verification": {
+              "const": "FAIL"
+            },
+            "accepted": {
+              "const": false
+            },
+            "outputs": {
+              "maxProperties": 0
+            }
+          }
+        },
+        {
+          "title": "Reconstruction error",
+          "properties": {
+            "decision": {
+              "const": "APPLY"
+            },
+            "reconstruction": {
+              "const": "ERROR"
+            },
+            "verification": {
+              "const": "NOT_RUN"
+            },
+            "accepted": {
+              "const": false
+            },
+            "outputs": {
+              "maxProperties": 0
+            }
+          }
+        },
+        {
+          "title": "Rejected applicability",
+          "properties": {
+            "decision": {
+              "const": "REJECT"
+            },
+            "reconstruction": {
+              "const": "NOT_RUN"
+            },
+            "verification": {
+              "const": "NOT_RUN"
+            },
+            "accepted": {
+              "const": false
+            },
+            "outputs": {
+              "maxProperties": 0
+            }
+          }
+        },
+        {
+          "title": "Unknown applicability",
+          "properties": {
+            "decision": {
+              "const": "UNKNOWN"
+            },
+            "reconstruction": {
+              "const": "NOT_RUN"
+            },
+            "verification": {
+              "const": "NOT_RUN"
+            },
+            "accepted": {
+              "const": false
+            },
+            "outputs": {
+              "maxProperties": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+}
